@@ -73,7 +73,7 @@ targets:
       TARGETED_DEVICE_FAMILY: "1,2"
       ENABLE_BITCODE: NO
       GCC_C_LANGUAGE_STANDARD: gnu11
-      OTHER_CFLAGS: $(inherited) -mcpu=apple-a16   # Compatible with iPhone 15 (A16) and newer; enables hardware LSE atomics
+      OTHER_CFLAGS: $(inherited)  -mcpu=apple-a13  # Compatible with iPhone 15 (A16) and newer; enables hardware LSE atomics
       CLANG_ENABLE_OBJC_ARC: YES
       SWIFT_VERSION: "5.0"                         # Launcher.swift (SwiftUI)
       DEBUG_INFORMATION_FORMAT: dwarf
