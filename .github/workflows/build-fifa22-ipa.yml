@@ -1,0 +1,44 @@
+name: Build FIFA 22 IPA
+
+on:
+  workflow_dispatch:
+    inputs:
+      game_url:
+        description: 'Direct link to FIFA 22 (.nsp or .xci)'
+        required: true
+        type: string
+      keys_url:
+        description: 'Direct link to prod.keys'
+        required: true
+        type: string
+
+jobs:
+  build-ipa:
+    runs-on: macos-26
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          brew update
+          brew install xcodegen zstd glslang lz4 spirv-cross uv
+          if [ -d "fifa-build-profile" ]; then
+            cp -rn fifa-build-profile/* dm/games/ || true
+          fi
+
+      - name: Download game and keys
+        run: |
+          mkdir -p game_input
+          curl -L --fail "${{ github.event.inputs.keys_url }}" -o prod.keys
+          curl -L --fail "${{ github.event.inputs.game_url }}" -o game_input/fifa22.nsp
+
+      - name: Build unsigned IPA
+        run: |
+          uv run scripts/build_ipa_from_nsp.py game_input --keys prod.keys --allow-other-metal
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fifa22-unsigned-ipa
+          path: game_input/*.ipa
