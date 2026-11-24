@@ -1,4 +1,4 @@
-name: Build FIFA 22 IPA
+name: Build FIFA 22 Shell IPA
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ on:
 
 jobs:
   build-ipa:
-    runs-on: macos-26
+    runs-on: macos-15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,12 +33,16 @@ jobs:
           curl -L --fail "${{ github.event.inputs.keys_url }}" -o prod.keys
           curl -L --fail "${{ github.event.inputs.game_url }}" -o game_input/fifa22.nsp
 
-      - name: Build unsigned IPA
+      - name: Build Shell IPA (App only)
         run: |
-          uv run scripts/build_ipa_from_nsp.py game_input --keys prod.keys --allow-other-metal
+          mkdir -p out_ipa
+          uv run scripts/build_ipa_from_nsp.py game_input --keys prod.keys --shell --allow-other-metal --out out_ipa/fifa22-shell.ipa || uv run scripts/build_ipa_from_nsp.py game_input --keys prod.keys --shell --allow-other-metal
 
-      - name: Upload IPA Artifact
+      - name: Upload Shell IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: fifa22-unsigned-ipa
-          path: game_input/*.ipa
+          name: fifa22-shell-ipa
+          path: |
+            out_ipa/*.ipa
+            game_input/*.ipa
+            *.ipa
